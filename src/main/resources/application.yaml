@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: kafka-connect-doctor-${random.int}
+logging:
+  level:
+    inc.evil: debug
+    org.zalando.logbook: trace
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+server:
+  port: 18080
+management:
+  server:
+    port: 18081
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always

@@ -1,0 +1,8 @@
+###
+GET localhost:18080/api/v1/health
+###
+GET localhost:18081/actuator/health
+###
+GET localhost:8083/connectors/logs-broker/status
+###
+GET localhost:8083/connectors/legacy.instructors.connector/status

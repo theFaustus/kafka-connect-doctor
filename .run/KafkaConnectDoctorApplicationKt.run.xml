@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="KafkaConnectDoctorApplicationKt" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="kafka-connect-doctor.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="inc.evil.kafkaconnectdoctor.KafkaConnectDoctorApplicationKt" />
+    <option name="VM_PARAMETERS" value="-DHOST=http://localhost -DPORT=8083 -DCONNECTOR_NAME=legacy.instructors.connector" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
