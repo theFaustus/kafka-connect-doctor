@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-config
+  labels:
+    broker: k8s-sandbox-kafka
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-sandbox-kafka
+  labels:
+    broker: k8s-sandbox-kafka
+spec:
+  selector:
+    matchLabels:
+      broker: k8s-sandbox-kafka
+  template:
+    metadata:
+      labels:
+        broker: k8s-sandbox-kafka
+    spec:
+      containers:
+        - name: k8s-sandbox-kafka
+          image: landoop/fast-data-dev
+          env:
+            - name: ADV_HOST
+              value: "127.0.0.1"
+            - name: RUNTESTS
+              value: "0"
+          resources:
+            requests:
+              cpu: 300m
+              memory: 512Mi
+            limits:
+              cpu: 900m
+              memory: 2Gi
+      volumes:
+        - name: kafka-config-volume
+          configMap:
+            name: kafka-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-sandbox-kafka
+  labels:
+    broker: k8s-sandbox-kafka
+spec:
+  type: ClusterIP
+  selector:
+    broker: k8s-sandbox-kafka
+  ports:
+  - protocol: TCP
+    port: 2181
+    targetPort: 2181
+    name: zookeeper
+  - protocol: TCP
+    port: 3030
+    targetPort: 3030
+    name: landoop-ui
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
+    name: rest-proxy
+  - protocol: TCP
+    port: 8082
+    targetPort: 8082
+    name: schema-registry
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083
+    name: kafka-connect
+  - protocol: TCP
+    port: 9092
+    targetPort: 9092
+    name: kakfa-broker

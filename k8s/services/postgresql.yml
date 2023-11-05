@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    db: k8s-sandbox-postgres
+data:
+  init.sql: |
+    create table instructors(
+      id         integer   not null
+      primary key,
+      created_at timestamp not null,
+      updated_at timestamp not null,
+      first_name       varchar(255),
+      last_name       varchar(255),
+      title varchar(255)
+    );
+  
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (0, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Liam', 'Martinez', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (1, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Thomas', 'Williams', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (2, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Mateo', 'Martinez', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (3, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Ciro', 'Smith', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (4, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Thomas', 'Garcia', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (5, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Tony', 'Wilson', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (6, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Felipe', 'Martin', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (7, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Felipe', 'Jones', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (8, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Michael', 'Jones', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (9, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Bruce', 'Smith', 'Mr.');
+    INSERT INTO instructors (id, created_at, updated_at, first_name, last_name, title) VALUES (10, '2022-08-28 21:00:19.315552', '2022-08-28 21:00:19.315552', 'Thomas', 'Martinez', 'Mr.');
+    
+    create view instructor_aggregate_vw(id, created_at, updated_at, name) as
+      SELECT instructors.id,
+      instructors.created_at,
+      instructors.updated_at,
+      (((instructors.title::text || ' '::text) || instructors.first_name::text) || ' '::text) ||
+      instructors.last_name::text AS name
+    FROM instructors;
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-sandbox-postgres
+  labels:
+    db: k8s-sandbox-postgres
+spec:
+  selector:
+    matchLabels:
+      db: k8s-sandbox-postgres
+  template:
+    metadata:
+      labels:
+        db: k8s-sandbox-postgres
+    spec:
+      containers:
+        - name: k8s-sandbox-postgres
+          image: postgres:14.4
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: "123456"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 60Mi
+            limits:
+              cpu: 200m
+              memory: 120Mi
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-config-volume
+      volumes:
+        - name: postgres-config-volume
+          configMap:
+            name: postgres-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-sandbox-postgres
+  labels:
+    db: k8s-sandbox-postgres
+spec:
+  type: ClusterIP
+  selector:
+    db: k8s-sandbox-postgres
+  ports:
+  - protocol: TCP
+    port: 5432
+    targetPort: 5432
